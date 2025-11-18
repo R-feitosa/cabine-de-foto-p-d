@@ -1,0 +1,7 @@
+{
+  "name": "Cabine de Fotos do P&D",
+  "description": "Tire uma foto e transforme-a em estilos de filmes de Natal icônicos usando IA. Torne-se o personagem principal da sua própria história de Natal!",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

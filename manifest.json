@@ -1,0 +1,21 @@
+{
+  "short_name": "Cabine P&D",
+  "name": "Cabine de Fotos do P&D",
+  "description": "Tire uma foto e transforme-a em estilos de filmes de Natal icônicos usando IA.",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1f2937",
+  "background_color": "#111827"
+}
