@@ -103,6 +103,10 @@ const Camera: React.FC<CameraProps> = ({ onCapture, onClose }) => {
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
             if (context) {
+                // Espelhar a captura para corresponder à visualização
+                context.translate(video.videoWidth, 0);
+                context.scale(-1, 1);
+
                 context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
                 canvas.toBlob(async (blob) => {
                     if (blob) {
@@ -162,7 +166,7 @@ const Camera: React.FC<CameraProps> = ({ onCapture, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
              <div className="relative w-full max-w-3xl mb-4">
-                <video ref={videoRef} autoPlay playsInline className="w-full max-h-[70vh] rounded-2xl object-cover"></video>
+                <video ref={videoRef} autoPlay playsInline className="w-full max-h-[70vh] rounded-2xl object-cover scale-x-[-1]"></video>
                 {countdown !== null && countdown > 0 && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <span className="text-9xl font-bold text-white countdown-animation" style={{ textShadow: '0 0 20px rgba(0,0,0,0.8)' }} key={countdown}>

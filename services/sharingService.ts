@@ -1,8 +1,7 @@
 // src/services/sharingService.ts
 
-// Usa um serviço mais confiável (file.io) com melhores políticas de CORS para evitar erros de 'fetch'.
-// O link gerado expira em 1 dia (?expires=1d).
-const UPLOAD_API_URL = 'https://file.io?expires=1d';
+// Usa tmpfiles.org, um serviço de upload de arquivos que suporta CORS e não requer chave de API.
+const UPLOAD_API_URL = 'https://tmpfiles.org/api/v1/upload';
 
 /**
  * Converte uma string data URL em um objeto Blob.
@@ -29,7 +28,7 @@ export async function createShareableLink(imageDataUrl: string): Promise<string>
     const formData = new FormData();
     const fileExtension = imageBlob.type.split('/')[1] || 'png';
     const fileName = `foto-cabine-pd.${fileExtension}`;
-    // A API do 'file.io' espera que o campo se chame 'file'
+    // A API do 'tmpfiles.org' espera que o campo se chame 'file'
     formData.append('file', imageBlob, fileName);
 
     const response = await fetch(UPLOAD_API_URL, {
@@ -37,25 +36,30 @@ export async function createShareableLink(imageDataUrl: string): Promise<string>
       body: formData,
     });
 
-    const result = await response.json();
-
     if (!response.ok) {
-      console.error('Erro do serviço de upload:', response.status, result);
-      throw new Error(result.message || `O serviço de compartilhamento retornou um erro: ${response.status}.`);
+      const errorText = await response.text();
+      console.error('Erro do serviço de upload:', response.status, errorText);
+      throw new Error(errorText || `O serviço de compartilhamento retornou um erro: ${response.status}.`);
     }
     
-    // Verifica a estrutura de resposta do file.io
-    if (result.success && result.link) {
-      return result.link;
+    const result = await response.json();
+
+    if (result.status === 'success' && result.data?.url) {
+      // A URL retornada é uma página de aterrissagem. 
+      // Construímos a URL de download direto substituindo o início.
+      // Ex: https://tmpfiles.org/123/file.png -> https://tmpfiles.org/dl/123/file.png
+      const directUrl = result.data.url.replace('https://tmpfiles.org/', 'https://tmpfiles.org/dl/');
+      return directUrl;
     } else {
-      console.error("Resposta inválida do serviço de upload (file.io):", result);
-      throw new Error(result.message || "A resposta do serviço de compartilhamento foi inválida.");
+      console.error("Resposta inválida do serviço de upload (tmpfiles.org):", result);
+      throw new Error("A resposta do serviço de compartilhamento foi inválida.");
     }
 
   } catch (error) {
     console.error("Erro ao criar link compartilhável:", error);
     
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        // This is a generic network error.
         throw new Error("Erro de rede. Verifique sua conexão e desative bloqueadores de anúncios ou VPN que possam estar interferindo.");
     }
     
